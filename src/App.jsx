@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import './App.css'
+import Wordle from './pages/Wordle'
+import Home from './Home'
 
 function App() {
 
   return (
-    <div style={{margin: 'auto'}}>
-      <h1>
-        Banana Games
-      </h1>
-    </div>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/wordle" element={<Wordle />}/>
+    </Routes>
   )
 }
 

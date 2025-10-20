@@ -14,6 +14,9 @@ type Pages = {
   "/": {
     params: {};
   };
+  "/wordle": {
+    params: {};
+  };
   "/*": {
     params: {
       "*": string;
@@ -24,7 +27,15 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/*";
+    page: "/" | "/wordle" | "/*";
+  };
+  "./pages/Home.jsx": {
+    id: "pages/Home";
+    page: "/";
+  };
+  "./pages/Wordle.jsx": {
+    id: "pages/Wordle";
+    page: "/wordle";
   };
   "catchall.tsx": {
     id: "catchall";
@@ -34,5 +45,7 @@ type RouteFiles = {
 
 type RouteModules = {
   "root": typeof import("./src/root.tsx");
+  "pages/Home": typeof import("./src/./pages/Home.jsx");
+  "pages/Wordle": typeof import("./src/./pages/Wordle.jsx");
   "catchall": typeof import("./src/catchall.tsx");
 };
