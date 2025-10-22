@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import Wordle from './pages/Wordle'
-import Home from './Home'
+import Home from './pages/Home'
 
 function App() {
 

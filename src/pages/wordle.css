@@ -1,0 +1,32 @@
+#wordle-grid {
+    margin: auto;
+}
+
+#wordle-grid input {
+    height: 4ch;
+    width: 4ch;
+    max-height: 80px;
+    max-width: 80px;
+    outline: none;
+    border: none;
+    margin: 10px 10px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    font-size: 40pt;
+    text-align: center;
+    font-weight: bold;
+    padding: 5px;
+}
+
+#wordle-grid input:focus {
+    border: 2px solid white;
+    border-radius: 0px;
+}
+
+.wordle-2 {
+    background-color: #2E7D32;
+}
+
+.wordle-1 {
+    background-color: #827717;
+}

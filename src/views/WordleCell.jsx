@@ -1,6 +1,6 @@
-function WordleCell({letter, onButtonClick}) {
+function WordleCell({letter, inputRef, onKeyDown, disabled, color}) {
     return (
-        <input onClick={onButtonClick} value={letter} readOnly></input>
+        <input className={`wordle-${color}`} onKeyDown={onKeyDown} ref={inputRef} value={letter} disabled={disabled} readOnly></input>
     )
 }
 
