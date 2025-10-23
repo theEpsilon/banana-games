@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import WordleCell from "../views/WordleCell";
-import { evaluateWord, evaluateRules } from "../util/WordleHelper";
+import { evaluateWord, evaluateRules, evalTry } from "../util/WordleHelper";
 import "./wordle.css"
 
 const rows = 6;
@@ -71,9 +71,10 @@ function Wordle() {
             return;
         }
 
-        const { markings, blocked } = evaluateWord(rowLetters)
+        const { markings, blocked } = evalTry(rowLetters)
+
         colors = colors.concat(markings)
-        //blockedLetters = blockedLetters.union(blocked)
+        blockedLetters = blockedLetters.union(blocked)
 
         if (currentRowIndex === rows - 1) {
             //handle game over

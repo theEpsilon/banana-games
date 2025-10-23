@@ -1,4 +1,5 @@
-export function evaluateWord(wordArr) {
+export function evalTry(wordArr) {
+    const word = "CRANE"
     const testWord = new Map()
     testWord.set("C", [0])
     testWord.set("R", [1])
@@ -6,60 +7,54 @@ export function evaluateWord(wordArr) {
     testWord.set("N", [3])
     testWord.set("E", [4])
 
-    const yellowMap = new Map()
-    const greenMap = new Map()
+    const markings = Array(5).fill(null)
+    const undiscoveredLetters = new Map()
+    const nonGreenLetters = new Map()
+    const newBlocked = new Set()
 
-    const result = Array(5).fill(null)
-    const blocked = new Array(26).fill(null)
+    const addToMap = (map, key, val) => {
+        if(!map.has(key)) {
+            map.set(key, [])
+        }
+        map.get(key).push(val)
+    }
 
-    for(let [index, letter] of wordArr.entries()) {
-        if(testWord.has(letter) && testWord.get(letter).includes(index)) {
-            if(!greenMap.has(letter)) {
-                greenMap.set(letter, [])
-            }
-            greenMap.get(letter).push(index)
-            result[index] = 2
-        } else {
-            if(!yellowMap.has(letter)) {
-                yellowMap.set(letter, [])
-            }
-            yellowMap.get(letter).push(index)
+    const markAll = (indices, markings, color) => {
+        for(const index of indices) {
+            markings[index] = color
         }
     }
 
-
-
-    console.log("letter maps", yellowMap, greenMap)
-
-    for(let [letter, indices] of yellowMap.entries()) {
-        if(testWord.has(letter)) {
-                const greenCount = greenMap.has(letter) ? greenMap.get(letter).length : 0
-            
-                // neg: first -x yellow, rest grey
-                // pos: all yellow
-                // 0:   all yellow
-                const countDiff = testWord.get(letter).length - (indices.length + greenCount)
-                if(countDiff >= 0) {
-                    for(let index of indices) {
-                        result[index] = 1
-                    }
-                } else {
-                    let yellowCount = testWord.get(letter).length - greenCount
-                    for(let i = 0; i < indices.length; i++) {
-                        result[yellowMap.get(letter)[i]] = i < yellowCount ? 1 : 0;
-                    }
-                }
+    for(let i = 0; i < word.length; i++) {
+        if(word[i] === wordArr[i]) {
+            markings[i] = 2
         } else {
-            for(let i of indices) {
-                result[i] = 0
+            addToMap(nonGreenLetters, wordArr[i], i)
+            addToMap(undiscoveredLetters, word[i], i)
+        }
+    }
+
+    for(const [letter, indices] of nonGreenLetters.entries()) {
+        if(!undiscoveredLetters.has(letter)) {
+            markAll(indices, markings, 0)
+            newBlocked.add(letter)
+        } else {
+            let diff = indices.length - undiscoveredLetters.get(letter).length
+
+            if(diff <= 0) {
+                markAll(indices, markings, 1)
+            } else {
+                markAll(indices.slice(0, diff), markings, 1)
+                markAll(indices.slice(diff), markings, 0)
+                newBlocked.add(letter)
             }
         }
     }
 
     return {
-        markings: result,
-        blocked: blocked
-    };
+        markings,
+        blocked: newBlocked
+    }
 }
 
 export function evaluateRules(wordArr, prevWordArr, markings, blockedLetters) {
