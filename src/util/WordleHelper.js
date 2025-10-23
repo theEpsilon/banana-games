@@ -1,56 +1,11 @@
-const knowledgeState = () => {
-    const state = new Map();
-
-    const addMin = (letter, min) => {
-        if(!state.has(letter)) {
-            state.set(letter, { min })
-        } else {
-            state.get(letter)["min"] = state.get(letter)["min"] + min
-        }
-    }
-
-    const setMin = (letter, min) => {
-        if(!state.has(letter)) {
-            state.set(letter, {})
-        }
-        state.set(letter, {...state.get(letter), min})
-    }
-
-    const setMax = (letter, max) => {
-        if(!state.has(letter)) {
-            state.set(letter, {})
-        }
-        state.set(letter, {...state.get(letter), max})
-    }
-
-    const addConfirmedIndex = (letter, index) => {
-        if(!state.has(letter)) {
-            state.set(letter, {})
-        }
-        if(!state.get(letter)["confirmed"]) {
-            state.set(letter, {...state.get(letter), confirmed: [index]})
-        } else {
-            state.get(letter)["confirmed"].push(index)
-        }
-    }
-
-    return {
-        state,
-        addMin,
-        setMin,
-        setMax,
-        addConfirmedIndex
-    }
-}
-
 export function evalTry(wordArr) {
-    const word = "CRANN"
+    const word = "CRANE"
     const testWord = new Map()
     testWord.set("C", [0])
     testWord.set("R", [1])
     testWord.set("A", [2])
     testWord.set("N", [3])
-    testWord.set("N", [4])
+    testWord.set("E", [4])
 
     const markings = Array(5).fill(null)
     const undiscoveredLetters = new Map()
@@ -164,28 +119,6 @@ export function evalTryRules(wordArr, prevLetters, prevMarkings, blocked) {
     
 
     return errors;
-}
-
-export function evaluateRules(wordArr, prevWordArr, markings, blockedLetters) {
-    console.log(wordArr, prevWordArr, markings, blockedLetters)
-    let errorMessages = []
-    for (let [index, letter] of wordArr.entries()) {
-        console.log(index, letter)
-        
-        // yellow letter in same position
-        if (markings[index] === 1 && letter === prevWordArr[index]) {
-            errorMessages.push(`The ${getReadableIndex(index)} cannot be ${letter}.`)
-        
-        // different letter in green position
-        } else if (markings[index] === 2 && letter !== prevWordArr[index]) {
-            errorMessages.push(`The ${getReadableIndex(index)} letter must be ${letter}.`)
-
-        // letter on blocklist (exceptions)
-        } else if (blockedLetters.has(letter) && (letter !== prevWordArr[index] || markings[index] !== 2)) {
-            errorMessages.push(`Letter ${letter} is not included in the word.`)
-        }
-    }
-    return errorMessages;
 }
 
 function addToMap(map, key, val) {
