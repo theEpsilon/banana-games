@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import WordleCell from "../views/WordleCell";
-import { evaluateWord, evaluateRules, evalTry } from "../util/WordleHelper";
+import { evaluateRules, evalTry } from "../util/WordleHelper";
 import "./wordle.css"
 
 const rows = 6;
