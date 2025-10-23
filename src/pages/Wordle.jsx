@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import WordleCell from "../views/WordleCell";
-import { evaluateRules, evalTry } from "../util/WordleHelper";
+import { evalTryRules, evalTry } from "../util/WordleHelper";
 import "./wordle.css"
 
 const rows = 6;
@@ -59,22 +59,27 @@ function Wordle() {
             }
         }
 
-        const prevWord = currentRowIndex > 0 ? gameState.slice((currentRowIndex - 1) * letters, currentRowIndex * letters) : [];
-        const prevMarkings = currentRowIndex > 0 ? colors.slice((currentRowIndex - 1) * letters, currentRowIndex * letters) : [];
+        const prevLetters = currentRowIndex > 0 ? gameState.slice(0, currentRowIndex * letters) : [];
+        const prevMarkings = currentRowIndex > 0 ? colors.slice(0, currentRowIndex * letters) : [];
 
-        const errors = []
-        //evaluateRules(rowLetters, prevWord, prevMarkings, blockedLetters)
+        const errors = evalTryRules(rowLetters, prevLetters, prevMarkings, blockedLetters)
+        console.log(errors)
+
+        /*
 
         if(errors.length > 0) {
             // display errors
-            console.log(errors)
             return;
         }
+
+        */
 
         const { markings, blocked } = evalTry(rowLetters)
 
         colors = colors.concat(markings)
         blockedLetters = blockedLetters.union(blocked)
+
+        console.log(blocked);
 
         if (currentRowIndex === rows - 1) {
             //handle game over
