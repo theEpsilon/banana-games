@@ -1,13 +1,17 @@
-export function evalTry(wordArr) {
-    const word = "CRANE"
-    const testWord = new Map()
-    testWord.set("C", [0])
-    testWord.set("R", [1])
-    testWord.set("A", [2])
-    testWord.set("N", [3])
-    testWord.set("E", [4])
+export function evalTry(tryWordArr = [], solveWord = "") {
+    if(!tryWordArr?.length || !solveWord?.length) {
+        return {
+            error: "Try word or solve word not defined."
+        }
+    }
+    
+    if(tryWordArr.length != solveWord.length) {
+        return {
+            error: "Try word and solve word length do not match."
+        }
+    }
 
-    const markings = Array(5).fill(null)
+    const markings = Array(solveWord.length).fill(null)
     const undiscoveredLetters = new Map()
     const nonGreenLetters = new Map()
     const newBlocked = new Set()
@@ -18,12 +22,12 @@ export function evalTry(wordArr) {
         }
     }
 
-    for(let i = 0; i < word.length; i++) {
-        if (word[i] === wordArr[i]) {
+    for(let i = 0; i < solveWord.length; i++) {
+        if (solveWord[i] === tryWordArr[i]) {
             markings[i] = 2
         } else {
-            addToMap(nonGreenLetters, wordArr[i], i)
-            addToMap(undiscoveredLetters, word[i], i)
+            addToMap(nonGreenLetters, tryWordArr[i], i)
+            addToMap(undiscoveredLetters, solveWord[i], i)
         }
     }
 
@@ -37,8 +41,8 @@ export function evalTry(wordArr) {
             if(diff <= 0) {
                 markAll(indices, markings, 1)
             } else {
-                markAll(indices.slice(0, diff), markings, 1)
-                markAll(indices.slice(diff), markings, 0)
+                markAll(indices.slice(0, diff + 1), markings, 1)
+                markAll(indices.slice(diff + 1), markings, 0)
                 newBlocked.add(letter)
             }
         }
@@ -46,11 +50,12 @@ export function evalTry(wordArr) {
 
     return {
         markings,
-        blocked: newBlocked
+        blocked: newBlocked,
+        error: null
     }
 }
 
-export function evalTryRules(wordArr, prevLetters, prevMarkings, blocked) {
+export function evalTryRules(tryWordArr, prevLetters, prevMarkings, blocked) {
 
     const errors = []
 
@@ -73,7 +78,7 @@ export function evalTryRules(wordArr, prevLetters, prevMarkings, blocked) {
         }
     }
 
-    for(const [i, letter] of wordArr.entries()) {
+    for(const [i, letter] of tryWordArr.entries()) {
         // check if position is green and letters match
         if(prevWordMarkings[i] === 2) {
             if(prevWord[i] === letter) {

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import WordleCell from "../views/WordleCell";
 import { evalTryRules, evalTry } from "../util/WordleHelper";
 import "./wordle.css"
+import { Button, Form, FormCheck } from "react-bootstrap";
 
 const rows = 6;
 const letters = 5;
@@ -14,6 +15,7 @@ let blockedLetters = new Set()
 function Wordle() {
     const [gameState, setGameState] = useState(Array(rows * letters).fill(null));
     const [currentRowIndex, setCurrentRowIndex] = useState(0)
+    const [hardMode, setHardMode] = useState(false)
     const wordleButtons = useRef([])
 
     useEffect(() => {
@@ -59,27 +61,21 @@ function Wordle() {
             }
         }
 
-        const prevLetters = currentRowIndex > 0 ? gameState.slice(0, currentRowIndex * letters) : [];
-        const prevMarkings = currentRowIndex > 0 ? colors.slice(0, currentRowIndex * letters) : [];
+        if(hardMode) {
+            const prevLetters = currentRowIndex > 0 ? gameState.slice(0, currentRowIndex * letters) : [];
+            const prevMarkings = currentRowIndex > 0 ? colors.slice(0, currentRowIndex * letters) : [];
+            const errors = evalTryRules(rowLetters, prevLetters, prevMarkings, blockedLetters)
 
-        const errors = evalTryRules(rowLetters, prevLetters, prevMarkings, blockedLetters)
-        console.log(errors)
-
-        /*
-
-        if(errors.length > 0) {
-            // display errors
-            return;
+            if(errors.length) {
+                // display errors
+                return;
+            }
         }
 
-        */
-
-        const { markings, blocked } = evalTry(rowLetters)
+        const { markings, blocked } = evalTry(rowLetters, "ABACD")
 
         colors = colors.concat(markings)
         blockedLetters = blockedLetters.union(blocked)
-
-        console.log(blocked);
 
         if (currentRowIndex === rows - 1) {
             //handle game over
@@ -117,8 +113,26 @@ function Wordle() {
         }
     }
 
+    function handleHardModeChange(event) {
+        setHardMode(event.target.checked);
+    }
+
     return (
         <div id="wordle-grid">
+            <div className="game-header">
+                <h1>Wordle</h1>
+                <div>
+                    <FormCheck
+                        type="switch"
+                        id="hard-mode-switch"
+                        label="Hard Mode"
+                        checked={hardMode}
+                        onChange={handleHardModeChange}
+                        disabled={currentRowIndex > 0}
+                    ></FormCheck>
+                </div>
+            </div>
+            <div className="game-container">
             {Array(rows).fill(0).map((_, ri) => 
                 <div key={"row-" + ri}>
                     {Array(letters).fill(0).map((_, ci) => 
@@ -133,6 +147,7 @@ function Wordle() {
                 )}
                 </div>
             )}
+            </div>
         </div>
     );
 }

@@ -13,6 +13,8 @@ dist-ssr
 *.local
 
 .react-router
+coverage
+.vscode
 
 # Editor directories and files
 .vscode/*
