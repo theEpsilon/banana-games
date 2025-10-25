@@ -4,7 +4,7 @@ export function evalTry(tryWordArr = [], solveWord = "") {
             error: "Try word or solve word not defined."
         }
     }
-    
+
     if(tryWordArr.length != solveWord.length) {
         return {
             error: "Try word and solve word length do not match."
@@ -58,23 +58,22 @@ export function evalTry(tryWordArr = [], solveWord = "") {
 export function evalTryRules(tryWordArr, prevLetters, prevMarkings, blocked) {
 
     const errors = []
+    const wordLength = tryWordArr.length
 
     // preprocess
     const yellowMap = new Map()
     const checkedIndices = new Set()
-    const prevWord = prevLetters.slice(-5)
-    const prevWordMarkings = prevMarkings.slice(-5)
+    const prevWord = prevLetters.slice(-wordLength)
+    const prevWordMarkings = prevMarkings.slice(-wordLength)
 
     if(prevWord.length === 0 && prevWordMarkings.length === 0) {
         return errors;
     }
 
-    console.log(prevWord, blocked)
-
     // Build index map of all yellow marked in gamestate
     for(let i = 0; i < prevLetters.length; i++) {
         if(prevMarkings[i] === 1) {
-            addToMap(yellowMap, i % 5, prevLetters[i], )
+            addToMap(yellowMap, prevLetters[i], i % wordLength)
         }
     }
 
@@ -85,8 +84,6 @@ export function evalTryRules(tryWordArr, prevLetters, prevMarkings, blocked) {
                 checkedIndices.add(i);
                 continue;
             } else {
-                // green error
-                // include in checkInd ?
                 errors.push(`${letter} at index ${i} is green;`)
                 continue;
             }
@@ -108,6 +105,7 @@ export function evalTryRules(tryWordArr, prevLetters, prevMarkings, blocked) {
                         validated = true;
                         break
                     } else {
+                        checkedIndices.add(j)
                         errors.push(`${letter} at index ${i} is yellow`)
                         break;
                     }
@@ -116,12 +114,16 @@ export function evalTryRules(tryWordArr, prevLetters, prevMarkings, blocked) {
         }
 
         if(blocked.has(letter) && !validated) {
-            //letter blocked
             errors.push(`${letter} at index ${i} is blocked;`)
         }
     }
 
-    
+    //Check if all yellow letters were used
+    for(let index = 0; index < wordLength; index++) {
+        if(prevWordMarkings[index] === 1 && !checkedIndices.has(index)) {
+            errors.push(`The word must include more of the letter ${prevWord[index]}.`)
+        }
+    }
 
     return errors;
 }
@@ -131,17 +133,4 @@ function addToMap(map, key, val) {
         map.set(key, [])
     }
     map.get(key).push(val)
-}
-
-function getReadableIndex(number) {
-    if (number == 0) {
-        return "1st"
-    }
-    if (number == 1) {
-        return "2nd"
-    }
-    if (number == 2) {
-        return "3rd"
-    }
-    return `${number}th`
 }
