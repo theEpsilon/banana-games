@@ -1,4 +1,4 @@
-export function evalTry(tryWordArr = [], solveWord = "") {
+export async function evalTry(tryWordArr = [], solveWord = "", checkDictionary = true) {
     if(!tryWordArr?.length || !solveWord?.length) {
         return {
             errors: ["Try word or solve word not defined."]
@@ -8,6 +8,20 @@ export function evalTry(tryWordArr = [], solveWord = "") {
     if(tryWordArr.length != solveWord.length) {
         return {
             errors: ["Try word and solve word length do not match."]
+        }
+    }
+
+    if(checkDictionary) {
+        let isValidWord = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${tryWordArr.join("").toLowerCase()}`)
+        .then((res) => res.json())
+        .then((res) => {
+            return Array.isArray(res)
+        })
+
+        if(!isValidWord) {
+            return {
+                errors: [`${tryWordArr.join("")} is not a valid word.`]
+            } 
         }
     }
 

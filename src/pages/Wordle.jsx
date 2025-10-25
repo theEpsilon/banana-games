@@ -3,6 +3,7 @@ import WordleCell from "../views/WordleCell";
 import { evalTryRules, evalTry } from "../util/WordleHelper";
 import "./wordle.css"
 import { FormCheck } from "react-bootstrap";
+import WordNet from "../assets/wordnet-core.json"
 
 const rows = 6;
 const letters = 5;
@@ -31,12 +32,13 @@ function Wordle() {
     const [currentRowIndex, setCurrentRowIndex] = useState(0)
     const [hardMode, setHardMode] = useState(false)
     const wordleButtons = useRef([])
+    const solveWord = useRef(WordNet[letters][Math.floor(Math.random() * WordNet[letters].length - 1)].toUpperCase());
 
     useEffect(() => {
         wordleButtons.current[currentRowIndex * letters].focus();
     }, [currentRowIndex])
 
-    function onKeyPressed(event, i) {
+    async function onKeyPressed(event, i) {
         if(i >= wordleButtons.current.length - 1) return;
 
         const value = event.key;
@@ -56,7 +58,7 @@ function Wordle() {
 
         //Handle keys requiring game state updates
         if(value === "Enter") {
-            const { markings, blocked, errors } = handleEnter();
+            const { markings, blocked, errors } = await handleEnter();
             if(errors.length || !markings) {
                 console.log(errors);
                 return;
@@ -83,7 +85,7 @@ function Wordle() {
         setGameState(newState);
     }
 
-    function handleEnter() {
+    async function handleEnter() {
         const rowLetters = gameState.letters.slice(currentRowIndex * letters, (currentRowIndex + 1) * letters);
         for (let letter of rowLetters) {
             if (!letter) {
@@ -104,8 +106,7 @@ function Wordle() {
                 };
             }
         }
-
-        return evalTry(rowLetters, "ABACD")
+        return await evalTry(rowLetters, solveWord.current)
     }
 
     function handleBackspace(index) {

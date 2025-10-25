@@ -2,16 +2,16 @@ import { evalTry, evalTryRules } from "../util/WordleHelper";
 import { expect, test, describe } from "vitest";
 
 describe("Wordle Game Logic (WordleHelper.js)", () => {
-    test("Try Evaluation - Error Handling", () => {
-        expect(evalTry(["A", "A"], "A").error).toBeDefined();
-        expect(evalTry(["A", "A"], "").error).toBeDefined();
-        expect(evalTry([], "A").error).toBeDefined();
-        expect(evalTry(["A", "A"], null).error).toBeDefined();
-        expect(evalTry(null, "A").error).toBeDefined();
+    test("Try Evaluation - Error Handling", async () => {
+        expect((await evalTry(["A", "A"], "A", false)).errors).toHaveLength(1);
+        expect((await evalTry(["A", "A"], "", false)).errors).toHaveLength(1);
+        expect((await evalTry([], "A", false)).errors).toHaveLength(1);
+        expect((await evalTry(["A", "A"], null, false)).errors).toHaveLength(1);
+        expect((await evalTry(null, "A", false)).errors).toHaveLength(1);
     });
 
-    test("Try Evaluation - Green Letters & Blocks", () => {
-        const oneGreen = evalTry(["A", "A", "A"], "BAB")
+    test("Try Evaluation - Green Letters & Blocks", async () => {
+        const oneGreen = await evalTry(["A", "A", "A"], "BAB", false)
 
         expect(oneGreen).toBeDefined();
         expect(oneGreen).toMatchObject({
@@ -19,7 +19,7 @@ describe("Wordle Game Logic (WordleHelper.js)", () => {
             blocked: new Set(["A"])
         });
 
-        const allGreen = evalTry(["A", "A", "A"], "AAA")
+        const allGreen = await evalTry(["A", "A", "A"], "AAA", false)
 
         expect(allGreen).toBeDefined();
         expect(allGreen).toMatchObject({
@@ -28,8 +28,8 @@ describe("Wordle Game Logic (WordleHelper.js)", () => {
         });
     });
 
-    test("Try Evaluation - Yellow Letters & Blocks", () => {
-        const oneYellow = evalTry(["D", "E", "A"], "ABC")
+    test("Try Evaluation - Yellow Letters & Blocks", async () => {
+        const oneYellow = await evalTry(["D", "E", "A"], "ABC", false)
 
         expect(oneYellow).toBeDefined();
         expect(oneYellow).toMatchObject({
@@ -37,7 +37,7 @@ describe("Wordle Game Logic (WordleHelper.js)", () => {
             blocked: new Set(["D", "E"])
         });
 
-        const allYellow = evalTry(["B", "C", "A"], "ABC")
+        const allYellow = await evalTry(["B", "C", "A"], "ABC", false)
 
         expect(allYellow).toBeDefined();
         expect(allYellow).toMatchObject({
@@ -45,7 +45,7 @@ describe("Wordle Game Logic (WordleHelper.js)", () => {
             blocked: new Set([])
         });
 
-        const complexYellow = evalTry(["F", "A", "E", "A", "A"], "ABACD")
+        const complexYellow = await evalTry(["F", "A", "E", "A", "A"], "ABACD", false)
 
         expect(complexYellow).toBeDefined();
         expect(complexYellow).toMatchObject({
@@ -53,7 +53,7 @@ describe("Wordle Game Logic (WordleHelper.js)", () => {
             blocked: new Set(["A", "E", "F"])
         });
 
-        const complexYellow2 = evalTry(["F", "A", "E", "F", "F"], "ABACD")
+        const complexYellow2 = await evalTry(["F", "A", "E", "F", "F"], "ABACD", false)
 
         expect(complexYellow2).toBeDefined();
         expect(complexYellow2).toMatchObject({
@@ -62,8 +62,8 @@ describe("Wordle Game Logic (WordleHelper.js)", () => {
         });
     });
 
-    test("Try Evaluation - Mixed Letters & Blocks", () => {
-        const mixedSimple = evalTry(["A", "B", "D"], "DBE")
+    test("Try Evaluation - Mixed Letters & Blocks", async () => {
+        const mixedSimple = await evalTry(["A", "B", "D"], "DBE", false)
 
         expect(mixedSimple).toBeDefined();
         expect(mixedSimple).toMatchObject({
@@ -72,7 +72,7 @@ describe("Wordle Game Logic (WordleHelper.js)", () => {
         });
 
         // yellow and green of same letter
-        const mixedComplex = evalTry(["A", "A", "D", "E", "D", "Y"], "DBEDDX")
+        const mixedComplex = await evalTry(["A", "A", "D", "E", "D", "Y"], "DBEDDX", false)
 
         expect(mixedComplex).toBeDefined();
         expect(mixedComplex).toMatchObject({
@@ -81,12 +81,27 @@ describe("Wordle Game Logic (WordleHelper.js)", () => {
         });
 
         // yellow, green and blocked of same letter
-        const mixedComplex2 = evalTry(["A", "X", "A", "A", "X"], "BAABB")
+        const mixedComplex2 = await evalTry(["A", "X", "A", "A", "X"], "BAABB", false)
 
         expect(mixedComplex2).toBeDefined();
         expect(mixedComplex2).toMatchObject({
             markings: [1,0,2,1,0],
             blocked: new Set(["A", "X"])
+        });
+    });
+
+    test("Try Evaluation - Word Validity", async () => {
+        const invalidWord = await evalTry(["A", "A", "A", "A"], "AAAB")
+
+        expect(invalidWord).toBeDefined();
+        expect(invalidWord.errors).toHaveLength(1)
+
+        const validWord = await evalTry(["A", "A", "A"], "AAA")
+
+        expect(validWord).toBeDefined();
+        expect(validWord).toMatchObject({
+            markings: [2,2,2],
+            blocked: new Set([])
         });
     });
 
