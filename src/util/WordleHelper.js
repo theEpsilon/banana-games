@@ -1,13 +1,13 @@
 export function evalTry(tryWordArr = [], solveWord = "") {
     if(!tryWordArr?.length || !solveWord?.length) {
         return {
-            error: "Try word or solve word not defined."
+            errors: ["Try word or solve word not defined."]
         }
     }
 
     if(tryWordArr.length != solveWord.length) {
         return {
-            error: "Try word and solve word length do not match."
+            errors: ["Try word and solve word length do not match."]
         }
     }
 
@@ -51,7 +51,7 @@ export function evalTry(tryWordArr = [], solveWord = "") {
     return {
         markings,
         blocked: newBlocked,
-        error: null
+        errors: []
     }
 }
 

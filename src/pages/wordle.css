@@ -28,6 +28,10 @@
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28255, 255, 255, 0.87%29'/%3e%3c/svg%3e");
 }
 
+.game-header .form-check input:focus {
+    box-shadow: none;
+}
+
 .game-header .form-check input:checked {
     background-color: rgba(255, 255, 255, 0.87);
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%2836, 36, 36, 1%29'/%3e%3c/svg%3e");

@@ -2,18 +2,32 @@ import { useState, useRef, useEffect } from "react";
 import WordleCell from "../views/WordleCell";
 import { evalTryRules, evalTry } from "../util/WordleHelper";
 import "./wordle.css"
-import { Button, Form, FormCheck } from "react-bootstrap";
+import { FormCheck } from "react-bootstrap";
 
 const rows = 6;
 const letters = 5;
 function getButtonIndex(rowIndex, columnIndex) {
     return rowIndex * (rows - 1) + columnIndex;
 }
-let colors = []
-let blockedLetters = new Set()
+
+const gameStatus = Object.freeze({
+    NOT_STARTED: 0,
+    STARTED: 1,
+    WON: 2,
+    LOST: 3
+})
+
+function hasGameEnded(status) {
+    return status !== gameStatus.NOT_STARTED && status !== gameStatus.STARTED
+}
 
 function Wordle() {
-    const [gameState, setGameState] = useState(Array(rows * letters).fill(null));
+    const [gameState, setGameState] = useState({
+        letters: Array(rows * letters).fill(null),
+        markings: [],
+        blocked: new Set(),
+        status: gameStatus.NOT_STARTED
+    });
     const [currentRowIndex, setCurrentRowIndex] = useState(0)
     const [hardMode, setHardMode] = useState(false)
     const wordleButtons = useRef([])
@@ -25,78 +39,85 @@ function Wordle() {
     function onKeyPressed(event, i) {
         if(i >= wordleButtons.current.length - 1) return;
 
-        const value = event.key
+        const value = event.key;
 
-        if(value === "Enter") {
-            handleEnter();
-            return;
-        }
-
-        if(value === "Backspace") {
-            handleBackspace(i);
-            return;
-        }
-
+        //Handle keys without game state updates
         if(value.substring(0, 5) === "Arrow") {
             handleArrows(i, value.substring(5).toLowerCase());
             return;
         }
 
-        if (!value || value.length > 1 || value.match(/[a-zA-ZöäüÖÄÜß]/g) === null) {
-            return;
+        const newState = {
+            letters: [...gameState.letters],
+            markings: [...gameState.markings],
+            blocked: new Set(gameState.blocked),
+            status: gameStatus.NOT_STARTED
         }
 
-        const newState = gameState.slice()
-        newState[i] = value.toUpperCase()
+        //Handle keys requiring game state updates
+        if(value === "Enter") {
+            const { markings, blocked, errors } = handleEnter();
+            if(errors.length || !markings) {
+                console.log(errors);
+                return;
+            }
+
+            newState.markings = newState.markings.concat(markings)
+            newState.blocked = newState.blocked.union(blocked)
+            newState.status = evalGameStatus(markings);
+
+            if(!hasGameEnded(newState.status)) {
+                setCurrentRowIndex(currentRowIndex + 1);
+            }
+
+        } else if(value === "Backspace") {
+            const delIndex = handleBackspace(i);
+            newState.letters[delIndex] = null;
+        } else if (!value || value.length > 1 || value.match(/[a-zA-ZöäüÖÄÜß]/g) === null) {
+            return;
+        } else {
+            newState.letters[i] = value.toUpperCase();
+            wordleButtons.current[i + 1].focus();
+        }
 
         setGameState(newState);
-        wordleButtons.current[i + 1].focus();
     }
 
     function handleEnter() {
-        const rowLetters = gameState.slice(currentRowIndex * letters, (currentRowIndex + 1) * letters);
+        const rowLetters = gameState.letters.slice(currentRowIndex * letters, (currentRowIndex + 1) * letters);
         for (let letter of rowLetters) {
             if (!letter) {
-                return;
+                return {
+                    errors: ["Invalid letter"]
+                };
             }
         }
 
         if(hardMode) {
-            const prevLetters = currentRowIndex > 0 ? gameState.slice(0, currentRowIndex * letters) : [];
-            const prevMarkings = currentRowIndex > 0 ? colors.slice(0, currentRowIndex * letters) : [];
+            const prevLetters = currentRowIndex > 0 ? gameState.letters.slice(0, currentRowIndex * letters) : [];
+            const prevMarkings = currentRowIndex > 0 ? gameState.markings.slice(0, currentRowIndex * letters) : [];
             const errors = evalTryRules(rowLetters, prevLetters, prevMarkings, blockedLetters)
 
             if(errors.length) {
-                // display errors
-                return;
+                return {
+                    errors
+                };
             }
         }
 
-        const { markings, blocked } = evalTry(rowLetters, "ABACD")
-
-        colors = colors.concat(markings)
-        blockedLetters = blockedLetters.union(blocked)
-
-        if (currentRowIndex === rows - 1) {
-            //handle game over
-        }
-
-        setCurrentRowIndex(currentRowIndex + 1)
+        return evalTry(rowLetters, "ABACD")
     }
 
     function handleBackspace(index) {
-        const newState = gameState.slice()
+        let delIndex = index;
 
-        if(gameState[index] === null) {
+        if(gameState.letters[index] === null) {
             if (index > currentRowIndex * letters) {
-                newState[index - 1] = null;
-                setGameState(newState);
+                delIndex = index - 1;
                 wordleButtons.current[index - 1].focus();
             }
-        } else {
-            newState[index] = null;
-            setGameState(newState);
         }
+        return delIndex;
     }
 
     function handleArrows(index, direction) {
@@ -115,6 +136,18 @@ function Wordle() {
 
     function handleHardModeChange(event) {
         setHardMode(event.target.checked);
+    }
+
+    function evalGameStatus(newMarkings) {
+        if(newMarkings.every((el) => el === 2)) {
+            return gameStatus.WON;
+        } else {
+            if (currentRowIndex >= rows - 1) {
+                return gameStatus.LOST;
+            }
+        }
+
+        return gameStatus.STARTED;
     }
 
     return (
@@ -139,10 +172,10 @@ function Wordle() {
                     <WordleCell 
                         inputRef={(el) => wordleButtons.current[getButtonIndex(ri, ci)] = el}
                         key={getButtonIndex(ri, ci)} 
-                        letter={gameState[getButtonIndex(ri, ci)] || ""}
+                        letter={gameState.letters[getButtonIndex(ri, ci)] || ""}
                         onKeyDown={(event) => onKeyPressed(event, getButtonIndex(ri, ci))}
-                        disabled={currentRowIndex !== ri}
-                        color={colors[getButtonIndex(ri, ci)] || 0}
+                        disabled={currentRowIndex !== ri || hasGameEnded(gameState.status)}
+                        color={gameState.markings[getButtonIndex(ri, ci)] || 0}
                     />
                 )}
                 </div>
