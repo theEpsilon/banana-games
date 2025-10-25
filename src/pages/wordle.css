@@ -1,0 +1,67 @@
+#wordle-grid {
+    margin: auto;
+}
+
+#wordle-grid h1 {
+    font-size: 5em;
+}
+
+.game-header {
+    margin-bottom: 2em;
+}
+
+#wordle-grid .game-header {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.87);
+}
+
+.game-header .form-check {
+    display: flex;
+    justify-content: center;
+    font-size: 1.5em;
+}
+
+.game-header .form-check input {
+    margin-right: 15px;
+    background-color: #00000000;
+    border: 2px solid rgba(255, 255, 255, 0.87);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28255, 255, 255, 0.87%29'/%3e%3c/svg%3e");
+}
+
+.game-header .form-check input:focus {
+    box-shadow: none;
+}
+
+.game-header .form-check input:checked {
+    background-color: rgba(255, 255, 255, 0.87);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%2836, 36, 36, 1%29'/%3e%3c/svg%3e");
+}
+
+#wordle-grid .game-container input {
+    height: 3ch;
+    width: 3ch;
+    max-height: 80px;
+    max-width: 80px;
+    outline: none;
+    border: none;
+    margin: 10px 10px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    font-size: 30pt;
+    text-align: center;
+    font-weight: bold;
+    padding: 5px;
+}
+
+#wordle-grid .game-container input:focus {
+    border: 2px solid white;
+    border-radius: 0px;
+}
+
+.wordle-2 {
+    background-color: #2E7D32;
+}
+
+.wordle-1 {
+    background-color: #827717;
+}
