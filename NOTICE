@@ -5,3 +5,11 @@ WordNet is provided by Princeton University under the WordNet License.
 See THIRD_PARTY_LICENSES/wordnet-LICENSE.txt for the full text of the license.
 
 WordNet Copyright 2006 by Princeton University. All rights reserved.
+
+--
+
+This software uses content from the Wikimedia REST API (https://en.wiktionary.org/api/rest_v1/#/Page%20content/get_page_definition__term_), which provides cacheable and straightforward access to Wikimedia content and data, in machine-readable formats.
+
+Content accessed via this API is licensed under the CC-BY-SA 3.0 (See https://creativecommons.org/licenses/by-sa/3.0/) and GFDL (See https://www.gnu.org/licenses/fdl-1.3.html) licenses.
+
+Content © contributors to the Wikimedia projects.

@@ -1,0 +1,4 @@
+@baseUrl = https://en.wiktionary.org/api/rest_v1
+
+GET {{baseUrl}}/page/definition/test
+Api-User-Agent: "https://github.com/theEpsilon/banana-games"

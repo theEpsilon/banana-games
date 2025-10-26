@@ -12,10 +12,14 @@ export async function evalTry(tryWordArr = [], solveWord = "", checkDictionary =
     }
 
     if(checkDictionary) {
-        let isValidWord = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${tryWordArr.join("").toLowerCase()}`)
+        let isValidWord = await fetch(`https://en.wiktionary.org/api/rest_v1/page/definition/${tryWordArr.join("").toLowerCase()}`, {
+            headers: {
+                "Api-User-Agent": "https://github.com/theEpsilon/banana-games"
+            }
+        })
         .then((res) => res.json())
         .then((res) => {
-            return Array.isArray(res)
+            return !!(res["en"])
         })
 
         if(!isValidWord) {

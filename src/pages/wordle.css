@@ -65,3 +65,21 @@
 .wordle-1 {
     background-color: #827717;
 }
+
+.game-footer {
+    position: relative;
+    text-align: center;
+    font-size: small;
+}
+
+.game-footer img {
+    height: 1.125em;
+    vertical-align: text-top; 
+}
+
+.game-footer a,
+.game-footer a:hover,
+.game-footer a:visited {
+    font-weight: 400;
+    color:rgba(255, 255, 255, 0.87)
+}
