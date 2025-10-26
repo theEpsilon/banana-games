@@ -4,6 +4,7 @@ import { evalTryRules, evalTry } from "../util/WordleHelper";
 import "./wordle.css"
 import { FormCheck } from "react-bootstrap";
 import WordNet from "../assets/wordnet-core.json"
+import externalLink from "../assets/external-link.svg"
 
 const rows = 6;
 const letters = 5;
@@ -181,6 +182,11 @@ function Wordle() {
                 )}
                 </div>
             )}
+            </div>
+            <div className="game-footer mt-2">
+                Powered by 
+                <span><a target="_blank" href="https://wordnet.princeton.edu/"> WordNet Core <img src={externalLink}></img></a></span> and 
+                <span><a target="_blank" href="https://www.mediawiki.org/wiki/REST_API"> Wikimedia REST API <img src={externalLink}></img></a></span>
             </div>
         </div>
     );
