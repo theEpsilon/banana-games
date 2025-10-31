@@ -1,3 +1,5 @@
+import { gameStatus } from "./GameHelper"
+
 export async function evalTry(tryWordArr = [], solveWord = "", checkDictionary = true) {
     if(!tryWordArr?.length || !solveWord?.length) {
         return {
@@ -143,6 +145,18 @@ export function evalTryRules(tryWordArr, prevLetters, prevMarkings, blocked) {
     }
 
     return errors;
+}
+
+export function evalGameStatus(newMarkings) {
+    if(newMarkings.every((el) => el === 2)) {
+        return gameStatus.WON;
+    } else {
+        if (currentRowIndex >= rows - 1) {
+            return gameStatus.LOST;
+        }
+    }
+
+    return gameStatus.STARTED;
 }
 
 function addToMap(map, key, val) {
