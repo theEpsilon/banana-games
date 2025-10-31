@@ -1,0 +1,16 @@
+.game-finished-modal .modal-content {
+    background-color: #1a1a1a;
+    color: #ffffffde;
+}
+
+.game-finished-modal .modal-title {
+    font-size: 20pt;
+}
+
+.restart-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin: auto;
+}
