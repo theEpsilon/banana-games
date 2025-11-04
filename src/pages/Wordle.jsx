@@ -23,7 +23,7 @@ function hasGameEnded(status) {
     return status !== gameStatus.NOT_STARTED && status !== gameStatus.STARTED
 }
 
-function Wordle() {
+function Wordle({ testWord }) {
     const [gameState, setGameState] = useState({
         letters: Array(rows * letters).fill(null),
         markings: [],
@@ -99,7 +99,7 @@ function Wordle() {
         if(hardMode) {
             const prevLetters = currentRowIndex > 0 ? gameState.letters.slice(0, currentRowIndex * letters) : [];
             const prevMarkings = currentRowIndex > 0 ? gameState.markings.slice(0, currentRowIndex * letters) : [];
-            const errors = evalTryRules(rowLetters, prevLetters, prevMarkings, blockedLetters)
+            const errors = evalTryRules(rowLetters, prevLetters, prevMarkings, gameState.blocked)
 
             if(errors.length) {
                 return {
@@ -107,7 +107,7 @@ function Wordle() {
                 };
             }
         }
-        return await evalTry(rowLetters, solveWord.current)
+        return await evalTry(rowLetters, testWord ? testWord : solveWord.current)
     }
 
     function handleBackspace(index) {
@@ -162,6 +162,7 @@ function Wordle() {
                         id="hard-mode-switch"
                         label="Hard Mode"
                         checked={hardMode}
+                        aria-checked={hardMode}
                         onChange={handleHardModeChange}
                         disabled={currentRowIndex > 0}
                     ></FormCheck>
