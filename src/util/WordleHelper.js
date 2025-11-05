@@ -74,7 +74,6 @@ export async function evalTry(tryWordArr = [], solveWord = "", checkDictionary =
 }
 
 export function evalTryRules(tryWordArr, prevLetters, prevMarkings, blocked) {
-
     const errors = []
     const wordLength = tryWordArr.length
 
