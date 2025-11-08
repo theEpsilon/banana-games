@@ -1,3 +1,6 @@
+import { gameStatus } from "./GameHelper"
+import WordNet from "../assets/wordnet-core.json"
+
 export async function evalTry(tryWordArr = [], solveWord = "", checkDictionary = true) {
     if(!tryWordArr?.length || !solveWord?.length) {
         return {
@@ -145,9 +148,23 @@ export function evalTryRules(tryWordArr, prevLetters, prevMarkings, blocked) {
     return errors;
 }
 
+export function evalGameStatus(newMarkings, finalTry = false) {
+    if(newMarkings.every((el) => el === 2)) {
+        return gameStatus.WON;
+    } else if (finalTry) {
+        return gameStatus.LOST;
+    }
+
+    return gameStatus.STARTED;
+}
+
 function addToMap(map, key, val) {
     if(!map.has(key)) {
         map.set(key, [])
     }
     map.get(key).push(val)
+}
+
+export function generateSolveWord(wordLength) {
+    return WordNet[wordLength][Math.floor(Math.random() * WordNet[wordLength].length - 1)].toUpperCase();
 }

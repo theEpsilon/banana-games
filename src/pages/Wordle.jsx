@@ -1,10 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import WordleCell from "../views/WordleCell";
-import { evalTryRules, evalTry } from "../util/WordleHelper";
+import { evalTryRules, evalTry, evalGameStatus, generateSolveWord } from "../util/WordleHelper";
 import "./wordle.css"
 import { FormCheck } from "react-bootstrap";
 import WordNet from "../assets/wordnet-core.json"
 import externalLink from "../assets/external-link.svg"
+import GameFinishedModal from "../views/GameFinishedModal";
+import { gameStatus, hasGameEnded } from "../util/GameHelper";
+import RestartButton from "../views/RestartButton";
 
 const rows = 6;
 const letters = 5;
@@ -12,35 +15,26 @@ function getButtonIndex(rowIndex, columnIndex) {
     return rowIndex * (rows - 1) + columnIndex;
 }
 
-const gameStatus = Object.freeze({
-    NOT_STARTED: 0,
-    STARTED: 1,
-    WON: 2,
-    LOST: 3
-})
-
-function hasGameEnded(status) {
-    return status !== gameStatus.NOT_STARTED && status !== gameStatus.STARTED
-}
-
-function Wordle({ testWord }) {
-    const [gameState, setGameState] = useState({
+function Wordle() {
+    const emptyState = {
         letters: Array(rows * letters).fill(null),
         markings: [],
         blocked: new Set(),
         status: gameStatus.NOT_STARTED
-    });
+    }
+    const [gameState, setGameState] = useState({...emptyState});
     const [currentRowIndex, setCurrentRowIndex] = useState(0)
     const [hardMode, setHardMode] = useState(false)
+    const [showModal, setShowModal] = useState(true)
     const wordleButtons = useRef([])
-    const solveWord = useRef(WordNet[letters][Math.floor(Math.random() * WordNet[letters].length - 1)].toUpperCase());
+    const solveWord = useRef(generateSolveWord(letters));
 
     useEffect(() => {
         wordleButtons.current[currentRowIndex * letters].focus();
     }, [currentRowIndex])
 
     async function onKeyPressed(event, i) {
-        if(i >= wordleButtons.current.length - 1) return;
+        if(i >= wordleButtons.current.length) return;
 
         const value = event.key;
 
@@ -67,10 +61,12 @@ function Wordle({ testWord }) {
 
             newState.markings = newState.markings.concat(markings)
             newState.blocked = newState.blocked.union(blocked)
-            newState.status = evalGameStatus(markings);
+            newState.status = evalGameStatus(markings, currentRowIndex >= rows - 1);
 
             if(!hasGameEnded(newState.status)) {
                 setCurrentRowIndex(currentRowIndex + 1);
+            } else {
+                setShowModal(true)
             }
 
         } else if(value === "Backspace") {
@@ -80,7 +76,9 @@ function Wordle({ testWord }) {
             return;
         } else {
             newState.letters[i] = value.toUpperCase();
-            wordleButtons.current[i + 1].focus();
+            if(i < wordleButtons.current.length - 1) {
+                wordleButtons.current[i + 1].focus();
+            }
         }
 
         setGameState(newState);
@@ -107,7 +105,7 @@ function Wordle({ testWord }) {
                 };
             }
         }
-        return await evalTry(rowLetters, testWord ? testWord : solveWord.current)
+        return await evalTry(rowLetters, solveWord.current)
     }
 
     function handleBackspace(index) {
@@ -140,16 +138,11 @@ function Wordle({ testWord }) {
         setHardMode(event.target.checked);
     }
 
-    function evalGameStatus(newMarkings) {
-        if(newMarkings.every((el) => el === 2)) {
-            return gameStatus.WON;
-        } else {
-            if (currentRowIndex >= rows - 1) {
-                return gameStatus.LOST;
-            }
-        }
-
-        return gameStatus.STARTED;
+    function handleRestart() {
+        solveWord.current = WordNet[letters][Math.floor(Math.random() * WordNet[letters].length - 1)].toUpperCase();
+        setGameState({...emptyState})
+        setShowModal(false)
+        setCurrentRowIndex(0)
     }
 
     return (
@@ -189,6 +182,16 @@ function Wordle({ testWord }) {
                 <span><a target="_blank" href="https://wordnet.princeton.edu/"> WordNet Core <img src={externalLink}></img></a></span> and 
                 <span><a target="_blank" href="https://www.mediawiki.org/wiki/REST_API"> Wikimedia REST API <img src={externalLink}></img></a></span>
             </div>
+            <GameFinishedModal 
+                show={hasGameEnded(gameState.status) && showModal} 
+                gameWon={gameState.status === gameStatus.WON}
+                onHide={() => setShowModal(false)}
+                onRestart={handleRestart}
+            >
+                <div>The word was:</div>
+                <div>{solveWord.current}</div>
+            </GameFinishedModal>
+            <RestartButton className={"mt-4"} onRestart={handleRestart} text={"Play again!"} bgColor={"#242424"} hide={!hasGameEnded(gameState.status)}></RestartButton>
         </div>
     );
 }
