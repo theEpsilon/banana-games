@@ -1,16 +1,24 @@
-import { expect, describe, afterEach, afterAll } from "vitest";
+import { expect, describe, afterEach, afterAll, beforeEach } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event"
 import Wordle from "../pages/Wordle"
 import '@testing-library/jest-dom'
 import * as wordleHelper from "../util/WordleHelper";
+import { vi } from "vitest";
 
 function setup(jsx) {
   return {
     user: userEvent.setup(),
-    ...render(jsx),
+    component: render(jsx),
   }
 }
+
+beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn(() => Promise.resolve({
+        json: () => Promise.resolve({ en: [] }),
+    })))
+    vi.spyOn(wordleHelper, "generateSolveWord").mockImplementation(() => "CRANE")
+})
 
 afterEach(() => {
     cleanup();
@@ -24,8 +32,9 @@ describe("Wordle", () => {
     });
 
     it("renders Wordle grid", () => {
-        render(<Wordle></Wordle>)
-        expect(screen.getAllByRole("textbox")).toHaveLength(30)
+        const wordleComponent = render(<Wordle></Wordle>);
+        expect(screen.getAllByRole("textbox")).toHaveLength(30);
+        expect(wordleComponent).toMatchSnapshot();
     });
 
     it("can navigate the Wordle grid", async () => {
@@ -82,15 +91,7 @@ describe("Wordle", () => {
     });
 
     it("can check a try word", async () => {
-        const {user} = setup(<Wordle testWord={"CRANE"}></Wordle>)
-
-        const mockSuccessFetch = vi.fn(() => Promise.resolve({
-            json: () => Promise.resolve({ en: [] }),
-        }))
-        const mockFailFetch = vi.fn(() => Promise.resolve({
-            json: () => Promise.resolve({ error: "" }),
-        }))
-        global.fetch = mockSuccessFetch
+        const {user} = setup(<Wordle></Wordle>)
 
         let firstRow = screen.getAllByRole("textbox").slice(0, 5);
         let secondRow = screen.getAllByRole("textbox").slice(5, 10);
@@ -100,31 +101,29 @@ describe("Wordle", () => {
         // Valid word
         await user.keyboard("eagle{Enter}");
 
-        expect(mockSuccessFetch).toHaveBeenCalled();
+        expect(fetch).toHaveBeenCalled();
         expect(secondRow[0]).toHaveFocus();
         expect(firstRow[0]).toBeDisabled();
 
         // Invalid word
-        global.fetch = mockFailFetch
+        vi.stubGlobal("fetch", vi.fn(() => Promise.resolve({
+            json: () => Promise.resolve({ error: "" }),
+        })))
 
         await user.keyboard("xxxxx{Enter}");
 
-        expect(mockFailFetch).toHaveBeenCalled();
+        expect(fetch).toHaveBeenCalled();
         expect(secondRow[4]).toHaveFocus();
 
     });
 
     it("enforces hard mode rules", async () => {
-        const {user} = setup(<Wordle testWord={"CRANE"}></Wordle>)
+        const {user} = setup(<Wordle></Wordle>)
         const firstTextBox = screen.getAllByRole("textbox")[0]
         const secondRowTextBox = screen.getAllByRole("textbox")[5]
         const hardModeSwitch = screen.getByLabelText("Hard Mode")
 
         const spy = vi.spyOn(wordleHelper, "evalTryRules")
-        const mockFetch = vi.fn(() => Promise.resolve({
-            json: () => Promise.resolve({ en: [] }),
-        }))
-        global.fetch = mockFetch
 
         await user.click(hardModeSwitch)
         expect(hardModeSwitch).toBeChecked()
@@ -142,5 +141,62 @@ describe("Wordle", () => {
 
         expect(spy).toHaveBeenCalledTimes(2);
         expect(screen.getAllByRole("textbox")[9]).toHaveFocus();
+    })
+
+    it("shows game win splash screen", async () => {
+        const {user, component} = setup(<Wordle></Wordle>)
+
+        let firstTextBox = screen.getAllByRole("textbox")[0]
+        expect(firstTextBox).toHaveFocus();
+
+        expect(screen.getByText("Play again!")).toHaveClass("d-none");
+        expect(screen.queryByTestId("game-ended-modal")).not.toBeInTheDocument();
+
+        await user.keyboard("crane{Enter}");
+
+        expect(screen.queryByTestId("game-ended-modal")).toBeVisible();
+        expect(screen.getByTestId("game-ended-modal")).toHaveTextContent("Congratulations!")
+
+        let restartBtns = screen.getAllByRole("button").filter(btn => btn.classList.contains("restart-button"))
+        expect(restartBtns).toHaveLength(2)
+
+        for(let btn of restartBtns) {
+            expect(btn).toBeVisible();
+        }
+
+        await user.click(restartBtns[0]);
+
+        expect(component).toMatchSnapshot();
+    })
+
+    it("shows game lost splash screen", async () => {
+        const {user, component} = setup(<Wordle></Wordle>)
+
+        let firstTextBox = screen.getAllByRole("textbox")[0]
+        expect(firstTextBox).toHaveFocus();
+
+        expect(screen.getByText("Play again!")).toHaveClass("d-none");
+        expect(screen.queryByTestId("game-ended-modal")).not.toBeInTheDocument();
+
+        await user.keyboard("eagle{Enter}");
+        await user.keyboard("eagle{Enter}");
+        await user.keyboard("eagle{Enter}");
+        await user.keyboard("eagle{Enter}");
+        await user.keyboard("eagle{Enter}");
+        await user.keyboard("eagle{Enter}");
+
+        expect(screen.queryByTestId("game-ended-modal")).toBeVisible();
+        expect(screen.getByTestId("game-ended-modal")).toHaveTextContent("Try again!")
+
+        let restartBtns = screen.getAllByRole("button").filter(btn => btn.classList.contains("restart-button"))
+        expect(restartBtns).toHaveLength(2)
+
+        for(let btn of restartBtns) {
+            expect(btn).toBeVisible();
+        }
+
+        await user.click(restartBtns[1]);
+
+        expect(component).toMatchSnapshot();
     })
 })

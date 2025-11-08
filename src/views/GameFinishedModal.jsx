@@ -11,6 +11,7 @@ function GameFinishedModal({show, onHide, onRestart, gameWon, children}) {
             show = {show}
             onHide = {onHide}
             className="game-finished-modal"
+            data-testid="game-ended-modal"
         >
             <Modal.Body>
                 <Container>
@@ -18,7 +19,7 @@ function GameFinishedModal({show, onHide, onRestart, gameWon, children}) {
                         <Col className="text-center modal-title">{gameWon ? "Congratulations!" : "Try again!"}</Col>
                     </Row>
                     <Row>
-                        <Col className="text-center mt-4 mb-4">
+                        <Col className="text-center my-4">
                             {children}
                         </Col>
                     </Row>

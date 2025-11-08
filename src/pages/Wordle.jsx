@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import WordleCell from "../views/WordleCell";
-import { evalTryRules, evalTry, evalGameStatus } from "../util/WordleHelper";
+import { evalTryRules, evalTry, evalGameStatus, generateSolveWord } from "../util/WordleHelper";
 import "./wordle.css"
 import { FormCheck } from "react-bootstrap";
 import WordNet from "../assets/wordnet-core.json"
@@ -15,7 +15,7 @@ function getButtonIndex(rowIndex, columnIndex) {
     return rowIndex * (rows - 1) + columnIndex;
 }
 
-function Wordle({ testWord }) {
+function Wordle() {
     const emptyState = {
         letters: Array(rows * letters).fill(null),
         markings: [],
@@ -27,7 +27,7 @@ function Wordle({ testWord }) {
     const [hardMode, setHardMode] = useState(false)
     const [showModal, setShowModal] = useState(true)
     const wordleButtons = useRef([])
-    const solveWord = useRef(WordNet[letters][Math.floor(Math.random() * WordNet[letters].length - 1)].toUpperCase());
+    const solveWord = useRef(generateSolveWord(letters));
 
     useEffect(() => {
         wordleButtons.current[currentRowIndex * letters].focus();
@@ -61,7 +61,7 @@ function Wordle({ testWord }) {
 
             newState.markings = newState.markings.concat(markings)
             newState.blocked = newState.blocked.union(blocked)
-            newState.status = evalGameStatus(markings);
+            newState.status = evalGameStatus(markings, currentRowIndex >= rows - 1);
 
             if(!hasGameEnded(newState.status)) {
                 setCurrentRowIndex(currentRowIndex + 1);
@@ -105,7 +105,7 @@ function Wordle({ testWord }) {
                 };
             }
         }
-        return await evalTry(rowLetters, testWord ? testWord : solveWord.current)
+        return await evalTry(rowLetters, solveWord.current)
     }
 
     function handleBackspace(index) {
@@ -191,7 +191,7 @@ function Wordle({ testWord }) {
                 <div>The word was:</div>
                 <div>{solveWord.current}</div>
             </GameFinishedModal>
-            <RestartButton className="mt-4" onRestart={handleRestart} text={"Play again!"} bgColor={"#242424"} hide={!hasGameEnded(gameState.status)}></RestartButton>
+            <RestartButton className={"mt-4"} onRestart={handleRestart} text={"Play again!"} bgColor={"#242424"} hide={!hasGameEnded(gameState.status)}></RestartButton>
         </div>
     );
 }
