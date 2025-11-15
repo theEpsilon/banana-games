@@ -2,38 +2,39 @@ import { useState, useRef, useEffect } from "react";
 import WordleCell from "../views/WordleCell";
 import { evalTryRules, evalTry, evalGameStatus, generateSolveWord } from "../util/WordleHelper";
 import "./wordle.css"
-import { FormCheck } from "react-bootstrap";
+import FormCheck from "react-bootstrap/FormCheck";
 import WordNet from "../assets/wordnet-core.json"
 import externalLink from "../assets/external-link.svg"
 import GameFinishedModal from "../views/GameFinishedModal";
-import { gameStatus, hasGameEnded } from "../util/GameHelper";
+import { hasGameEnded } from "../util/GameHelper";
 import RestartButton from "../views/RestartButton";
+import { evalTryResult, wordleState } from "../types/wordleTypes";
 
 const rows = 6;
 const letters = 5;
-function getButtonIndex(rowIndex, columnIndex) {
+function getButtonIndex(rowIndex: number, columnIndex: number): number {
     return rowIndex * (rows - 1) + columnIndex;
 }
 
 function Wordle() {
-    const emptyState = {
-        letters: Array(rows * letters).fill(null),
+    const emptyState: wordleState = {
+        letters: [],
         markings: [],
         blocked: new Set(),
-        status: gameStatus.NOT_STARTED
+        status: "NOT_STARTED"
     }
-    const [gameState, setGameState] = useState({...emptyState});
-    const [currentRowIndex, setCurrentRowIndex] = useState(0)
-    const [hardMode, setHardMode] = useState(false)
-    const [showModal, setShowModal] = useState(true)
-    const wordleButtons = useRef([])
-    const solveWord = useRef(generateSolveWord(letters));
+    const [gameState, setGameState] = useState<wordleState>({...emptyState});
+    const [currentRowIndex, setCurrentRowIndex] = useState<number>(0)
+    const [hardMode, setHardMode] = useState<boolean>(false)
+    const [showModal, setShowModal] = useState<boolean>(true)
+    const wordleButtons = useRef<any[]>([])
+    const solveWord = useRef<string>(generateSolveWord(letters));
 
     useEffect(() => {
         wordleButtons.current[currentRowIndex * letters].focus();
     }, [currentRowIndex])
 
-    async function onKeyPressed(event, i) {
+    async function onKeyPressed(event: any, i: number) {
         if(i >= wordleButtons.current.length) return;
 
         const value = event.key;
@@ -44,11 +45,11 @@ function Wordle() {
             return;
         }
 
-        const newState = {
+        const newState: wordleState = {
             letters: [...gameState.letters],
             markings: [...gameState.markings],
             blocked: new Set(gameState.blocked),
-            status: gameStatus.NOT_STARTED
+            status: "NOT_STARTED"
         }
 
         //Handle keys requiring game state updates
@@ -60,7 +61,7 @@ function Wordle() {
             }
 
             newState.markings = newState.markings.concat(markings)
-            newState.blocked = newState.blocked.union(blocked)
+            newState.blocked = newState.blocked.union(blocked!)
             newState.status = evalGameStatus(markings, currentRowIndex >= rows - 1);
 
             if(!hasGameEnded(newState.status)) {
@@ -71,7 +72,7 @@ function Wordle() {
 
         } else if(value === "Backspace") {
             const delIndex = handleBackspace(i);
-            newState.letters[delIndex] = null;
+            newState.letters[delIndex] = "";
         } else if (!value || value.length > 1 || value.match(/[a-zA-ZöäüÖÄÜß]/g) === null) {
             return;
         } else {
@@ -84,11 +85,13 @@ function Wordle() {
         setGameState(newState);
     }
 
-    async function handleEnter() {
+    async function handleEnter(): Promise<evalTryResult> {
         const rowLetters = gameState.letters.slice(currentRowIndex * letters, (currentRowIndex + 1) * letters);
         for (let letter of rowLetters) {
             if (!letter) {
                 return {
+                    markings: [],
+                    blocked: null,
                     errors: ["Invalid letter"]
                 };
             }
@@ -101,6 +104,8 @@ function Wordle() {
 
             if(errors.length) {
                 return {
+                    markings: [],
+                    blocked: null,
                     errors
                 };
             }
@@ -108,7 +113,7 @@ function Wordle() {
         return await evalTry(rowLetters, solveWord.current)
     }
 
-    function handleBackspace(index) {
+    function handleBackspace(index: number) {
         let delIndex = index;
 
         if(gameState.letters[index] === null) {
@@ -120,7 +125,7 @@ function Wordle() {
         return delIndex;
     }
 
-    function handleArrows(index, direction) {
+    function handleArrows(index: number, direction: string) {
         if(direction === "right") {
             if(index + 1 < (currentRowIndex + 1) * letters) {
                 wordleButtons.current[index + 1].focus();
@@ -134,7 +139,7 @@ function Wordle() {
         }
     }
 
-    function handleHardModeChange(event) {
+    function handleHardModeChange(event: any) {
         setHardMode(event.target.checked);
     }
 
@@ -166,10 +171,10 @@ function Wordle() {
                 <div key={"row-" + ri}>
                     {Array(letters).fill(0).map((_, ci) => 
                     <WordleCell 
-                        inputRef={(el) => wordleButtons.current[getButtonIndex(ri, ci)] = el}
+                        inputRef={(el: any) => wordleButtons.current[getButtonIndex(ri, ci)] = el}
                         key={getButtonIndex(ri, ci)} 
                         letter={gameState.letters[getButtonIndex(ri, ci)] || ""}
-                        onKeyDown={(event) => onKeyPressed(event, getButtonIndex(ri, ci))}
+                        onKeyDown={(event: any) => onKeyPressed(event, getButtonIndex(ri, ci))}
                         disabled={currentRowIndex !== ri || hasGameEnded(gameState.status)}
                         color={gameState.markings[getButtonIndex(ri, ci)] || 0}
                     />
@@ -184,7 +189,7 @@ function Wordle() {
             </div>
             <GameFinishedModal 
                 show={hasGameEnded(gameState.status) && showModal} 
-                gameWon={gameState.status === gameStatus.WON}
+                gameWon={gameState.status === "WON"}
                 onHide={() => setShowModal(false)}
                 onRestart={handleRestart}
             >
