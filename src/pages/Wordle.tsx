@@ -2,12 +2,13 @@ import { useState, useRef, useEffect } from "react";
 import WordleCell from "../views/WordleCell";
 import { evalTryRules, evalTry, evalGameStatus, generateSolveWord } from "../util/WordleHelper";
 import "./wordle.css"
-import { FormCheck } from "react-bootstrap";
+import FormCheck from "react-bootstrap/FormCheck";
 import WordNet from "../assets/wordnet-core.json"
 import externalLink from "../assets/external-link.svg"
 import GameFinishedModal from "../views/GameFinishedModal";
 import { gameStatus, hasGameEnded } from "../util/GameHelper";
 import RestartButton from "../views/RestartButton";
+import { evalTryResult } from "../types/wordleTypes";
 
 const rows = 6;
 const letters = 5;
@@ -84,7 +85,7 @@ function Wordle() {
         setGameState(newState);
     }
 
-    async function handleEnter() {
+    async function handleEnter(): Promise<evalTryResult> {
         const rowLetters = gameState.letters.slice(currentRowIndex * letters, (currentRowIndex + 1) * letters);
         for (let letter of rowLetters) {
             if (!letter) {
@@ -108,7 +109,7 @@ function Wordle() {
         return await evalTry(rowLetters, solveWord.current)
     }
 
-    function handleBackspace(index) {
+    function handleBackspace(index: number) {
         let delIndex = index;
 
         if(gameState.letters[index] === null) {
@@ -120,7 +121,7 @@ function Wordle() {
         return delIndex;
     }
 
-    function handleArrows(index, direction) {
+    function handleArrows(index: number, direction: string) {
         if(direction === "right") {
             if(index + 1 < (currentRowIndex + 1) * letters) {
                 wordleButtons.current[index + 1].focus();
@@ -134,7 +135,7 @@ function Wordle() {
         }
     }
 
-    function handleHardModeChange(event) {
+    function handleHardModeChange(event: any) {
         setHardMode(event.target.checked);
     }
 
