@@ -1,8 +1,14 @@
-import { Container, Modal, Row, Col, Button } from "react-bootstrap";
+import { Container, Modal, Row, Col } from "react-bootstrap";
 import "./modals.css"
 import RestartButton from "./RestartButton";
 
-function GameFinishedModal({show, onHide, onRestart, gameWon, children}) {
+function GameFinishedModal({show, onHide, onRestart, gameWon, children}: {
+    show: boolean,
+    onHide: () => void,
+    onRestart: () => void,
+    gameWon: boolean,
+    children?: any
+}) {
     return (
         <Modal
             size="sm"

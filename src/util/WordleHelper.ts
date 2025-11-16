@@ -1,21 +1,30 @@
 import { gameStatus } from "./GameHelper"
 import WordNet from "../assets/wordnet-core.json"
+import { evalTryResult } from "../types/wordleTypes"
 
-export async function evalTry(tryWordArr = [], solveWord = "", checkDictionary = true) {
+export async function evalTry(tryWordArr: string[] = [], solveWord: string = "", checkDictionary: boolean = true): Promise<evalTryResult> {
+    let result: evalTryResult = {
+        markings: [],
+        blocked: new Set(),
+        errors: []
+    }
+    
     if(!tryWordArr?.length || !solveWord?.length) {
         return {
+            ...result,
             errors: ["Try word or solve word not defined."]
         }
     }
 
     if(tryWordArr.length != solveWord.length) {
         return {
+            ...result,
             errors: ["Try word and solve word length do not match."]
         }
     }
 
     if(checkDictionary) {
-        let isValidWord = await fetch(`https://en.wiktionary.org/api/rest_v1/page/definition/${tryWordArr.join("").toLowerCase()}`, {
+        let isValidWord: boolean = await fetch(`https://en.wiktionary.org/api/rest_v1/page/definition/${tryWordArr.join("").toLowerCase()}`, {
             headers: {
                 "Api-User-Agent": "https://github.com/theEpsilon/banana-games"
             }
@@ -27,17 +36,18 @@ export async function evalTry(tryWordArr = [], solveWord = "", checkDictionary =
 
         if(!isValidWord) {
             return {
+                ...result,
                 errors: [`${tryWordArr.join("")} is not a valid word.`]
             } 
         }
     }
 
-    const markings = Array(solveWord.length).fill(null)
-    const undiscoveredLetters = new Map()
-    const nonGreenLetters = new Map()
-    const newBlocked = new Set()
+    const markings: number[] = Array(solveWord.length).fill(0)
+    const undiscoveredLetters: Map<string, number[]> = new Map()
+    const nonGreenLetters: Map<string, number[]> = new Map()
+    const newBlocked: Set<string> = new Set()
 
-    const markAll = (indices, markings, color) => {
+    const markAll = (indices: number[], markings: number[], color: number) => {
         for (const index of indices) {
             markings[index] = color
         }
@@ -57,7 +67,8 @@ export async function evalTry(tryWordArr = [], solveWord = "", checkDictionary =
             markAll(indices, markings, 0)
             newBlocked.add(letter)
         } else {
-            let diff = indices.length - undiscoveredLetters.get(letter).length
+            const undiscovered = undiscoveredLetters.get(letter);
+            const diff: number = undiscovered ? indices.length - undiscovered.length : indices.length;
 
             if(diff <= 0) {
                 markAll(indices, markings, 1)
@@ -76,8 +87,8 @@ export async function evalTry(tryWordArr = [], solveWord = "", checkDictionary =
     }
 }
 
-export function evalTryRules(tryWordArr, prevLetters, prevMarkings, blocked) {
-    const errors = []
+export function evalTryRules(tryWordArr: string[], prevLetters: string[], prevMarkings: number[], blocked: Set<string>): string[] {
+    const errors: string[] = []
     const wordLength = tryWordArr.length
 
     // preprocess
@@ -148,23 +159,24 @@ export function evalTryRules(tryWordArr, prevLetters, prevMarkings, blocked) {
     return errors;
 }
 
-export function evalGameStatus(newMarkings, finalTry = false) {
+export function evalGameStatus(newMarkings: number[], finalTry: boolean = false): gameStatus {
     if(newMarkings.every((el) => el === 2)) {
-        return gameStatus.WON;
+        return "WON";
     } else if (finalTry) {
-        return gameStatus.LOST;
+        return "LOST";
     }
 
-    return gameStatus.STARTED;
+    return "STARTED";
 }
 
-function addToMap(map, key, val) {
+function addToMap(map: Map<any, any>, key: any, val: any): void {
     if(!map.has(key)) {
         map.set(key, [])
     }
     map.get(key).push(val)
 }
 
-export function generateSolveWord(wordLength) {
-    return WordNet[wordLength][Math.floor(Math.random() * WordNet[wordLength].length - 1)].toUpperCase();
+export function generateSolveWord(wordLength: number): string {
+    const key = String(wordLength) as keyof typeof WordNet
+    return WordNet[key][Math.floor(Math.random() * WordNet[key].length - 1)].toUpperCase();
 }
