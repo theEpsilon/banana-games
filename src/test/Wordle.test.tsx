@@ -1,15 +1,15 @@
-import { expect, describe, afterEach, afterAll, beforeEach } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event"
+import { expect, describe, afterEach, beforeEach } from "vitest";
+import { cleanup, render, RenderResult, screen } from "@testing-library/react";
+import userEvent, { UserEvent } from "@testing-library/user-event"
 import Wordle from "../pages/Wordle"
 import '@testing-library/jest-dom'
 import * as wordleHelper from "../util/WordleHelper";
 import { vi } from "vitest";
 
-function setup(jsx) {
+function setup(tsx: React.ReactNode): {user: UserEvent, component: RenderResult} {
   return {
     user: userEvent.setup(),
-    component: render(jsx),
+    component: render(tsx),
   }
 }
 

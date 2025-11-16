@@ -2,7 +2,7 @@ import '../App.css'
 import { Link } from "react-router"
 import wordleImg from "../assets/wordle_titleimg.png"
 import './home.css'
-import { Container, Row } from 'react-bootstrap'
+import { Container } from 'react-bootstrap'
 
 function Home() {
 

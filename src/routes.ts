@@ -5,7 +5,7 @@ import {
 
 export default [
   // * matches all URLs, the ? makes it optional so it will match / as well
-  route("/", "./pages/Home.jsx"),
-  route("/wordle", "./pages/Wordle.jsx"),
+  route("/", "./pages/Home.tsx"),
+  route("/wordle", "./pages/Wordle.tsx"),
   route("*?", "catchall.tsx"),
 ] satisfies RouteConfig;
