@@ -130,10 +130,10 @@ export function evalTryRules(tryWordArr: string[], prevLetters: string[], prevMa
             }
             if(prevWordLetter === letter) {
                 if(prevWordMarkings[j] === 1) {
+                    validated = true;
                     if(!yellowMap.get(letter)?.includes(i)) {
                         //valid case
                         checkedIndices.add(j)
-                        validated = true;
                         break
                     } else {
                         checkedIndices.add(j)

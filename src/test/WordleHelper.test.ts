@@ -159,5 +159,10 @@ describe("Wordle Game Logic (WordleHelper.js)", () => {
         expect(oneYellowOneBlocked).toHaveLength(1);
     })
 
+    test("Rule Evaluation - Identical Try", () => {
+        const identicalTry = evalTryRules(["E", "A", "G", "L", "E"], ["E", "A", "G", "L", "E"], [1, 1, 0, 0, 0], new Set(["G", "L", "E"]))
+        console.log(identicalTry)
+        expect(identicalTry).toHaveLength(5)
+    })
     
 })
