@@ -113,11 +113,10 @@ export function evalTryRules(tryWordArr: string[], prevLetters: string[], prevMa
         if(prevWordMarkings[i] === 2) {
             if(prevWord[i] === letter) {
                 checkedIndices.add(i);
-                continue;
             } else {
                 errors.push(`${letter} at index ${i} is green;`)
-                continue;
             }
+            continue;
         }
 
         // Position was not marked green, so
@@ -125,22 +124,13 @@ export function evalTryRules(tryWordArr: string[], prevLetters: string[], prevMa
         // If none found and letter on blocklist, add error
         let validated = false
         for(const [j, prevWordLetter] of prevWord.entries()) {
-            if(checkedIndices.has(j)) {
-                continue;
-            }
-            if(prevWordLetter === letter) {
-                if(prevWordMarkings[j] === 1) {
-                    validated = true;
-                    if(!yellowMap.get(letter)?.includes(i)) {
-                        //valid case
-                        checkedIndices.add(j)
-                        break
-                    } else {
-                        checkedIndices.add(j)
-                        errors.push(`${letter} at index ${i} is yellow`)
-                        break;
-                    }
+            if(!checkedIndices.has(j) && prevWordLetter === letter && prevWordMarkings[j] === 1) {
+                validated = true;
+                if(yellowMap.get(letter).includes(i)) {
+                    errors.push(`${letter} at index ${i} is yellow`);
                 }
+                checkedIndices.add(j);
+                break;
             }
         }
 
