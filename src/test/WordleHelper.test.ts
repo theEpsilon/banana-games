@@ -6,8 +6,8 @@ describe("Wordle Game Logic (WordleHelper.js)", () => {
         expect((await evalTry(["A", "A"], "A", false)).errors).toHaveLength(1);
         expect((await evalTry(["A", "A"], "", false)).errors).toHaveLength(1);
         expect((await evalTry([], "A", false)).errors).toHaveLength(1);
-        expect((await evalTry(["A", "A"], null, false)).errors).toHaveLength(1);
-        expect((await evalTry(null, "A", false)).errors).toHaveLength(1);
+        expect((await evalTry(["A", "A"], undefined, false)).errors).toHaveLength(1);
+        expect((await evalTry(undefined, "A", false)).errors).toHaveLength(1);
     });
 
     test("Try Evaluation - Green Letters & Blocks", async () => {

@@ -34,7 +34,7 @@ function Wordle() {
         wordleButtons.current[currentRowIndex * letters].focus();
     }, [currentRowIndex])
 
-    async function onKeyPressed(event: any, i: number) {
+    async function onKeyPressed(event: any, i: number): Promise<void> {
         if(i >= wordleButtons.current.length) return;
 
         const value = event.key;
@@ -54,7 +54,7 @@ function Wordle() {
 
         //Handle keys requiring game state updates
         if(value === "Enter") {
-            const { markings, blocked, errors } = await handleEnter();
+            const { markings, blocked, errors }: evalTryResult = await handleEnter();
             if(errors.length || !markings) {
                 console.log(errors);
                 return;
@@ -87,11 +87,11 @@ function Wordle() {
 
     async function handleEnter(): Promise<evalTryResult> {
         const rowLetters = gameState.letters.slice(currentRowIndex * letters, (currentRowIndex + 1) * letters);
+        const errResult: evalTryResult = {markings: [], blocked: null, errors: []}
         for (let letter of rowLetters) {
             if (!letter) {
                 return {
-                    markings: [],
-                    blocked: null,
+                    ...errResult,
                     errors: ["Invalid letter"]
                 };
             }
@@ -104,8 +104,7 @@ function Wordle() {
 
             if(errors.length) {
                 return {
-                    markings: [],
-                    blocked: null,
+                    ...errResult,
                     errors
                 };
             }
@@ -113,10 +112,10 @@ function Wordle() {
         return await evalTry(rowLetters, solveWord.current)
     }
 
-    function handleBackspace(index: number) {
+    function handleBackspace(index: number): number {
         let delIndex = index;
 
-        if(gameState.letters[index] === null) {
+        if(gameState.letters[index] === undefined || gameState.letters[index] === "") {
             if (index > currentRowIndex * letters) {
                 delIndex = index - 1;
                 wordleButtons.current[index - 1].focus();
@@ -125,7 +124,7 @@ function Wordle() {
         return delIndex;
     }
 
-    function handleArrows(index: number, direction: string) {
+    function handleArrows(index: number, direction: string): void {
         if(direction === "right") {
             if(index + 1 < (currentRowIndex + 1) * letters) {
                 wordleButtons.current[index + 1].focus();
@@ -139,11 +138,11 @@ function Wordle() {
         }
     }
 
-    function handleHardModeChange(event: any) {
+    function handleHardModeChange(event: any): void {
         setHardMode(event.target.checked);
     }
 
-    function handleRestart() {
+    function handleRestart(): void {
         solveWord.current = WordNet[letters][Math.floor(Math.random() * WordNet[letters].length - 1)].toUpperCase();
         setGameState({...emptyState})
         setShowModal(false)

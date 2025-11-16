@@ -1,7 +1,7 @@
-import { useState } from 'react'
 import './App.css'
 import Wordle from './pages/Wordle'
 import Home from './pages/Home'
+import { Route, Routes } from "react-router"
 
 function App() {
 

@@ -7,7 +7,7 @@ export type evalTryResult = {
 }
 
 export type wordleState = {
-    letters: string[],
+    letters: (string)[],
     markings: number[],
     blocked: Set<string>,
     status: gameStatus
