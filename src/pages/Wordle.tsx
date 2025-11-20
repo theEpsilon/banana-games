@@ -153,55 +153,55 @@ function Wordle() {
 
     return (
         <Container>
-        <NavBar></NavBar>
-        <div id="wordle-grid">
-            
-            <div className="game-header">
-                <h1>Wordle</h1>
-                <div>
-                    <FormCheck
-                        type="switch"
-                        id="hard-mode-switch"
-                        label="Hard Mode"
-                        checked={hardMode}
-                        aria-checked={hardMode}
-                        onChange={handleHardModeChange}
-                        disabled={currentRowIndex > 0}
-                    ></FormCheck>
+            <NavBar></NavBar>
+            <div id="wordle-grid">
+                
+                <div className="game-header">
+                    <h1>Wordle</h1>
+                    <div>
+                        <FormCheck
+                            type="switch"
+                            id="hard-mode-switch"
+                            label="Hard Mode"
+                            checked={hardMode}
+                            aria-checked={hardMode}
+                            onChange={handleHardModeChange}
+                            disabled={currentRowIndex > 0}
+                        ></FormCheck>
+                    </div>
                 </div>
-            </div>
-            <div className="game-container">
-            {Array(rows).fill(0).map((_, ri) => 
-                <div key={"row-" + ri}>
-                    {Array(letters).fill(0).map((_, ci) => 
-                    <WordleCell 
-                        inputRef={(el: any) => wordleButtons.current[getButtonIndex(ri, ci)] = el}
-                        key={getButtonIndex(ri, ci)} 
-                        letter={gameState.letters[getButtonIndex(ri, ci)] || ""}
-                        onKeyDown={(event: any) => onKeyPressed(event, getButtonIndex(ri, ci))}
-                        disabled={currentRowIndex !== ri || hasGameEnded(gameState.status)}
-                        color={gameState.markings[getButtonIndex(ri, ci)] || 0}
-                    />
+                <div className="game-container">
+                {Array(rows).fill(0).map((_, ri) => 
+                    <div key={"row-" + ri}>
+                        {Array(letters).fill(0).map((_, ci) => 
+                        <WordleCell 
+                            inputRef={(el: any) => wordleButtons.current[getButtonIndex(ri, ci)] = el}
+                            key={getButtonIndex(ri, ci)} 
+                            letter={gameState.letters[getButtonIndex(ri, ci)] || ""}
+                            onKeyDown={(event: any) => onKeyPressed(event, getButtonIndex(ri, ci))}
+                            disabled={currentRowIndex !== ri || hasGameEnded(gameState.status)}
+                            color={gameState.markings[getButtonIndex(ri, ci)] || 0}
+                        />
+                    )}
+                    </div>
                 )}
                 </div>
-            )}
+                <div className="game-footer mt-2">
+                    Powered by 
+                    <span><a target="_blank" href="https://wordnet.princeton.edu/"> WordNet Core <img src={externalLink}></img></a></span> and 
+                    <span><a target="_blank" href="https://www.mediawiki.org/wiki/REST_API"> Wikimedia REST API <img src={externalLink}></img></a></span>
+                </div>
+                <GameFinishedModal 
+                    show={hasGameEnded(gameState.status) && showModal} 
+                    gameWon={gameState.status === "WON"}
+                    onHide={() => setShowModal(false)}
+                    onRestart={handleRestart}
+                >
+                    <div>The word was:</div>
+                    <div>{solveWord.current}</div>
+                </GameFinishedModal>
+                <RestartButton className={"mt-4"} onRestart={handleRestart} text={"Play again!"} bgColor={"#242424"} hide={!hasGameEnded(gameState.status)}></RestartButton>
             </div>
-            <div className="game-footer mt-2">
-                Powered by 
-                <span><a target="_blank" href="https://wordnet.princeton.edu/"> WordNet Core <img src={externalLink}></img></a></span> and 
-                <span><a target="_blank" href="https://www.mediawiki.org/wiki/REST_API"> Wikimedia REST API <img src={externalLink}></img></a></span>
-            </div>
-            <GameFinishedModal 
-                show={hasGameEnded(gameState.status) && showModal} 
-                gameWon={gameState.status === "WON"}
-                onHide={() => setShowModal(false)}
-                onRestart={handleRestart}
-            >
-                <div>The word was:</div>
-                <div>{solveWord.current}</div>
-            </GameFinishedModal>
-            <RestartButton className={"mt-4"} onRestart={handleRestart} text={"Play again!"} bgColor={"#242424"} hide={!hasGameEnded(gameState.status)}></RestartButton>
-        </div>
         </Container>
     );
 }
