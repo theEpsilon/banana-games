@@ -9,6 +9,8 @@ import GameFinishedModal from "../views/GameFinishedModal";
 import { hasGameEnded } from "../util/GameHelper";
 import RestartButton from "../views/RestartButton";
 import { evalTryResult, wordleState } from "../types/wordleTypes";
+import NavBar from "../views/NavBar";
+import { Container } from "react-bootstrap";
 
 const rows = 6;
 const letters = 5;
@@ -150,7 +152,10 @@ function Wordle() {
     }
 
     return (
+        <Container>
+        <NavBar></NavBar>
         <div id="wordle-grid">
+            
             <div className="game-header">
                 <h1>Wordle</h1>
                 <div>
@@ -197,6 +202,7 @@ function Wordle() {
             </GameFinishedModal>
             <RestartButton className={"mt-4"} onRestart={handleRestart} text={"Play again!"} bgColor={"#242424"} hide={!hasGameEnded(gameState.status)}></RestartButton>
         </div>
+        </Container>
     );
 }
 
