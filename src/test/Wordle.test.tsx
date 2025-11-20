@@ -5,11 +5,16 @@ import Wordle from "../pages/Wordle"
 import '@testing-library/jest-dom'
 import * as wordleHelper from "../util/WordleHelper";
 import { vi } from "vitest";
+import { MemoryRouter } from "react-router";
 
 function setup(tsx: React.ReactNode): {user: UserEvent, component: RenderResult} {
   return {
     user: userEvent.setup(),
-    component: render(tsx),
+    component: render(
+        <MemoryRouter>
+        {tsx}
+        </MemoryRouter>
+    ),
   }
 }
 
@@ -27,14 +32,14 @@ afterEach(() => {
 
 describe("Wordle", () => {
     it("renders Wordle component", () => {
-        render(<Wordle></Wordle>);
+        setup(<Wordle></Wordle>);
         expect(screen.getByText("Wordle")).toBeInTheDocument();
     });
 
     it("renders Wordle grid", () => {
-        const wordleComponent = render(<Wordle></Wordle>);
+        const { component } = setup(<Wordle></Wordle>);
         expect(screen.getAllByRole("textbox")).toHaveLength(30);
-        expect(wordleComponent).toMatchSnapshot();
+        expect(component).toMatchSnapshot();
     });
 
     it("can navigate the Wordle grid", async () => {

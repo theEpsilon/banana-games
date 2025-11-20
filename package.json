@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
+    "test:update-snapshots": "vitest -u",
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
