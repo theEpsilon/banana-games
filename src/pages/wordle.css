@@ -37,6 +37,15 @@
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%2836, 36, 36, 1%29'/%3e%3c/svg%3e");
 }
 
+#wordle-grid .game-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#wordle-grid .game-container div {
+    margin: auto;
+}
+
 #wordle-grid .game-container input {
     height: 3ch;
     width: 3ch;
